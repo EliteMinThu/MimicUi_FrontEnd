@@ -1,0 +1,9 @@
+[
+  {
+    "origin": ["http://localhost:5173"],
+    "method": ["PUT", "GET", "HEAD"],
+    "responseHeader": ["Content-Type", "Access-Control-Allow-Origin"],
+    "maxAgeSeconds": 3600,
+    "aa" : "gcloud storage buckets update gs://upload-test-video --cors-file=cors-config.json"
+  }
+]

@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+    --color-primary: #015358;
+    --color-secondary: #D9D9D9;
+    --color-brand: #599896;
+    --color-BGdanger: #CCA180;
+    --color-danger: #FFA4A4;
+
+    /*font*/
+    --font-jp: "Hina Mincho", serif;
+}
+/*@media screen and (max-width: 768px) {*/
+/*    * {*/
+/*        overflow: hidden;*/
+/*    }*/
+/*}*/
+body {
+    font-family: var(--font-jp);
+}
+
