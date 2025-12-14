@@ -21,6 +21,10 @@ export const AuthProvider = ({ children }) => {
   // --- State管理 ---
   // ログインしているユーザー情報を保持するState
   const [user, setUser] = useState(null);
+
+  // verified user
+  const [isVerified, setIsVerified] = useState(null);
+
   // 認証状態の確認中かどうかを示すローディングState
   const [isLoading, setIsLoading] = useState(true);
 
@@ -47,7 +51,8 @@ export const AuthProvider = ({ children }) => {
       if (response.ok) {
         // ログイン状態が有効な場合、ユーザー情報をセットする
         const data = await response.json();
-        setUser(data.user);
+        setUser(data.user);// 修正: data.user をセットする
+        setIsVerified(data.user.is_verified)
       } else {
         // ログイン状態が無効な場合、ユーザー情報をnullにする
         setUser(null);
@@ -77,13 +82,16 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ username, email, password }),
         credentials: "include",
       });
+      
+      const data = await response.json(); // レスポンスをJSONとしてパース
+
       if (response.ok) {
         // 登録成功後、返されたユーザー情報でStateを更新
-        const data = await response.json();
-        setUser(data.user);
+        setIsVerified(data.is_verified); // 修正: data.user をセットする
         return { success: true };
       } else {
-        return { success: false, error: "Registration failed" };
+        // 失敗した場合、バックエンドからのエラーメッセージを返す
+        return { success: false, error: data.message || "Registration failed" };
       }
     } catch (error) {
       console.error("Registration error:", error);
@@ -109,13 +117,25 @@ export const AuthProvider = ({ children }) => {
         credentials: "include",
       });
 
+      const data = await response.json(); // レスポンスをJSONとしてパース
+
       if (response.ok) {
-        // ログイン成功後、返されたユーザー情報でStateを更新
-        const data = await response.json();
-        setUser(data.user);
-        return { success: true };
+
+
+        if(data.user) {
+            // ログイン成功後、返されたユーザー情報でStateを更新
+            setUser(data.user);
+        }else {
+            // ログイン成功後、返されたユーザー情報にis_verifiedがfalse の場合 isVerified Stateを更新
+            setIsVerified(data);
+        }
+
+        return { success: true, is_verified: data.is_verified };
       } else {
-        return { success: false, error: "Login failed" };
+        // 失敗した場合、バックエンドからのエラーメッセージを返す
+
+          // console.log(data.is_verified)
+        return { success: false};
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -145,7 +165,7 @@ export const AuthProvider = ({ children }) => {
 
   // Context.Providerを介して、認証に関する値や関数を子コンポーネントに提供する
   return (
-    <AuthContext.Provider value={{ user, isLoading, register, login, logout }}>
+    <AuthContext.Provider value={{ user, isVerified, isLoading, setIsLoading, register, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -10,8 +10,10 @@ import LogoutPage from "./pages/LogoutPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import ForgetPasswordPage from "./pages/ForgetPasswordPage.jsx";
 import EmailVerificationPage from "./pages/EmailVerificationPage.jsx";
+import Verified from "./pages/Verified.jsx";
+import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 
-const AppContent = ({ user }) => {
+const AppContent = ({ user, isVerified }) => {
   return (
     <>
       <Routes>
@@ -25,15 +27,10 @@ const AppContent = ({ user }) => {
           <Route path="/forgot-password" element={<ForgetPasswordPage />} />
         {/* Logout Route */}
         <Route path="/logout" element={<LogoutPage />} />
-          {/*Email verification page*/}
-          <Route
-              path="/email-verify"
-              element={
-                  <ProtectedRoute>
-                      <EmailVerificationPage />
-                  </ProtectedRoute>
-              }
-          />
+
+        <Route path="/email-verify" element={<EmailVerificationPage />} />
+          <Route path="/verify/:token" element={<Verified />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
           {/*cvForm*/}
         <Route
           path="/cvform"

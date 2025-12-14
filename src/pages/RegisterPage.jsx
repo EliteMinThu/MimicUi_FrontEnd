@@ -24,6 +24,9 @@ function RegisterPage() {
     // エラーメッセージを管理するState
     const [errorMessage, setErrorMessage] = useState("");
 
+
+
+
     // --- Hooks ---
     // AuthContextからregister関数を取得
     const { register } = useAuth();
@@ -40,7 +43,15 @@ function RegisterPage() {
 
         // パスワードと確認用パスワードが一致しない場合はエラーメッセージを設定して処理を中断
         if (password !== confirmPassword) {
-            setErrorMessage("Passwords do not match");
+            setErrorMessage("パスワードが位置してないです。");
+            console.log(errorMessage);
+            return;
+        }
+
+        // --- Limit ---
+        //パスワードをせめて8個以上にする
+        if(password.length < 8) {
+            setErrorMessage("パスワードは8個以上にしてください。");
             console.log(errorMessage);
             return;
         }
@@ -51,7 +62,7 @@ function RegisterPage() {
         // 登録が成功した場合
         if (result.success) {
             // メール認証ページに遷移する
-            navigate("/email-verify");
+            navigate("/email-verify", { state: { allowed: true } });
         } else {
             // 登録が失敗した場合、エラーメッセージを設定する
             setErrorMessage(result.message);
@@ -125,7 +136,7 @@ function RegisterPage() {
                                         </svg>
                                         <input
                                             type={showPassword ? "text" : "password"}
-                                            className="flex-1 focus:outline-none bg-transparent"
+                                            className="flex-1 focus:outline-none bg-transparent w-8/12"
                                             placeholder="Password"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
@@ -155,7 +166,7 @@ function RegisterPage() {
                                         </svg>
                                         <input
                                             type={showConfirmPassword ? "text" : "password"}
-                                            className="flex-1 focus:outline-none bg-transparent"
+                                            className="flex-1 focus:outline-none bg-transparent w-8/12"
                                             placeholder="Confirm Password"
                                             value={confirmPassword}
                                             onChange={(e) => setConfirmPassword(e.target.value)}

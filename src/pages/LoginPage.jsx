@@ -21,7 +21,7 @@ function LoginPage() {
 
   // --- Hooks ---
   // AuthContextからlogin関数を取得
-  const { login } = useAuth();
+  const { login, is_verified } = useAuth();
   // ページ遷移を管理するuseNavigateフック
   const navigate = useNavigate();
 
@@ -34,13 +34,18 @@ function LoginPage() {
     event.preventDefault();
     // AuthContextのlogin関数を呼び出し、ログインを試みる
     const result = await login(email, password);
+
     if (result.success) {
+      // resultが is_verified object をreturnの場合
+      if (result.is_verified === false){
+          return navigate("/email-verify", { state: { allowed: true } });
+      }
+
       // ログインが成功した場合、CVフォームページに遷移する
       navigate("/cvform");
     } else {
       // ログインが失敗した場合、エラーメッセージを設定する
-      console.log("error");
-      setErrorMessage("イーメールとパスワードが間違っています。");
+      // setErrorMessage("イーメールとパスワードが間違っています。");
     }
   };
 
@@ -146,14 +151,15 @@ function LoginPage() {
                     登録
                   </Link>
                 </div>
+                  {/* エラーメッセージ表示エリア */}
+                  {errorMessage && (
+                      <p className="mt-4 text-sm text-red-600 font-semibold text-center">
+                          {errorMessage}
+                      </p>
+                  )}
               </form>
 
-              {/* エラーメッセージ表示エリア */}
-              {errorMessage && (
-                <p className="mt-4 text-sm text-red-600 font-semibold text-center">
-                  {errorMessage}
-                </p>
-              )}
+
             </div>
           </div>
         </div>
