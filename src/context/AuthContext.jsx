@@ -1,5 +1,6 @@
 // 必要なReactのフックをインポートする
 import { createContext, useContext, useEffect, useState } from "react";
+import {useNoti} from "./NotiContext.jsx";
 
 // 認証情報を保持するためのContextを作成
 const AuthContext = createContext(null);
@@ -27,6 +28,7 @@ export const AuthProvider = ({ children }) => {
 
   // 認証状態の確認中かどうかを示すローディングState
   const [isLoading, setIsLoading] = useState(true);
+
 
   // バックエンドAPIのベースURL
   const API_URL = "http://localhost:5000/api/auth";
@@ -135,7 +137,9 @@ export const AuthProvider = ({ children }) => {
         // 失敗した場合、バックエンドからのエラーメッセージを返す
 
           // console.log(data.is_verified)
-        return { success: false};
+        const errorMessage =  Object.values(data);
+
+        return { success: false, errorMessage};
       }
     } catch (error) {
       console.error("Login error:", error);

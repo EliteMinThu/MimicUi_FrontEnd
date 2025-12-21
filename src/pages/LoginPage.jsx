@@ -5,6 +5,8 @@ import { useNavigate, Link } from "react-router-dom";
 import background from "../assets/imgs/background.png";
 import logo_head from "../assets/imgs/logo-head.png";
 import logo_text from "../assets/imgs/logo-text.png";
+import Notification from "./components/Notification.jsx";
+import {useNoti} from "../context/NotiContext.jsx";
 
 /**
  * ログインページを表示・処理するコンポーネント
@@ -16,8 +18,8 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   // パスワードの表示/非表示を管理するState
   const [showpassword, setshowpassword] = useState(false);
-  // エラーメッセージを管理するState
-  const [errorMessage, setErrorMessage] = useState("");
+  //NotiContext から pushMessage
+    const {pushMessage} = useNoti();
 
   // --- Hooks ---
   // AuthContextからlogin関数を取得
@@ -40,12 +42,12 @@ function LoginPage() {
       if (result.is_verified === false){
           return navigate("/email-verify", { state: { allowed: true } });
       }
-
       // ログインが成功した場合、CVフォームページに遷移する
       navigate("/cvform");
     } else {
       // ログインが失敗した場合、エラーメッセージを設定する
       // setErrorMessage("イーメールとパスワードが間違っています。");
+        pushMessage(result.errorMessage);
     }
   };
 
@@ -54,9 +56,12 @@ function LoginPage() {
     <>
       {/* 背景画像を設定した全画面コンテナ */}
       <div
-        className="w-full h-screen bg-cover bg-center"
+        className="relative w-full h-screen bg-cover bg-center"
         style={{ backgroundImage: `url(${background})` }}
       >
+          <div className={`fixed top-5 left-1/2 -translate-x-1/2 z-10`}>
+              <Notification/>
+          </div>
         <div className="min-h-screen flex items-center justify-center shadow-lg shadow-gray-500/50">
           {/* ログインフォームのカード */}
           <div className={`relative`}>
@@ -151,12 +156,6 @@ function LoginPage() {
                     登録
                   </Link>
                 </div>
-                  {/* エラーメッセージ表示エリア */}
-                  {errorMessage && (
-                      <p className="mt-4 text-sm text-red-600 font-semibold text-center">
-                          {errorMessage}
-                      </p>
-                  )}
               </form>
 
 
