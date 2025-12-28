@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@plugin "tailwind-scrollbar";
+
 @theme {
     --color-primary: #015358;
     --color-secondary: #D9D9D9;
@@ -7,6 +9,7 @@
     --color-BGdanger: #CCA180;
     --color-danger: #FFA4A4;
     --color-hu : #A44104;
+    --color-BGblack: #212121;
 
     /*font*/
     --font-jp: "Hina Mincho", serif;

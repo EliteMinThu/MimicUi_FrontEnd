@@ -12,6 +12,7 @@ import ForgetPasswordPage from "./pages/ForgetPasswordPage.jsx";
 import EmailVerificationPage from "./pages/EmailVerificationPage.jsx";
 import Verified from "./pages/Verified.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
+import FeedBackpage from "./pages/FeedBackpage.jsx";
 
 const AppContent = ({ user, isVerified }) => {
   return (
@@ -26,7 +27,10 @@ const AppContent = ({ user, isVerified }) => {
         <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgetPasswordPage />} />
         {/* Logout Route */}
-        <Route path="/logout" element={<LogoutPage />} />
+          <Route path="/logout" element={<LogoutPage />} />
+
+          {/*feedBack page */}
+          <Route path="/feedback" element={<FeedBackpage />} />
 
         <Route path="/email-verify" element={<EmailVerificationPage />} />
           <Route path="/verify/:token" element={<Verified />} />

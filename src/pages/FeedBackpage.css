@@ -1,0 +1,203 @@
+/* FeedBackpage Animations */
+
+/* Fade in from bottom animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade in with scale animation */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Slide in from right animation */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide in from left animation */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Grade card pulse animation */
+@keyframes gradePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Gradient border animation */
+@keyframes gradientRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Text reveal animation */
+@keyframes textReveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Initial state - elements hidden until they scroll into view */
+.feedback-section-title {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.feedback-grade-card {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.feedback-grade-text {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.feedback-card-container {
+  opacity: 0;
+  transform: translateX(50px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.feedback-card-logo {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.6s ease-out 0.2s, transform 0.6s ease-out 0.2s;
+}
+
+.feedback-card-text {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1s ease-out 0.4s, transform 1s ease-out 0.4s;
+}
+
+.feedback-radar-container {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.feedback-answer-container {
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.feedback-answer-text {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1s ease-out 0.3s, transform 1s ease-out 0.3s;
+}
+
+/* Animated state - triggered when element is in viewport */
+.feedback-section-title.feedback-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.feedback-grade-card.feedback-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.feedback-grade-text.feedback-visible {
+  animation: gradePulse 2s ease-in-out 0.8s infinite;
+}
+
+.feedback-card-container.feedback-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.feedback-card-logo.feedback-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.feedback-card-text.feedback-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.feedback-radar-container.feedback-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.feedback-answer-container.feedback-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.feedback-answer-text.feedback-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Smooth transition for all animated elements */
+.feedback-animated {
+  transition: all 0.3s ease;
+}
+
+/* Stagger animation delays for multiple children */
+.feedback-stagger-1 {
+  animation-delay: 0.1s;
+}
+
+.feedback-stagger-2 {
+  animation-delay: 0.2s;
+}
+
+.feedback-stagger-3 {
+  animation-delay: 0.3s;
+}
+
+.feedback-stagger-4 {
+  animation-delay: 0.4s;
+}
+
