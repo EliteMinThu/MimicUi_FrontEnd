@@ -1,4 +1,5 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
+import RecordingTimer from "./RecordingTimer.jsx";
 
 /**
  * ユーザーのビデオと音声を録画し、サーバーにアップロードするコンポーネント
@@ -17,6 +18,7 @@ const InterviewRecordVideo = ({ username, onStopInterview }) => {
   // --- State管理 ---
   const [isRecording, setIsRecording] = useState(false); // 録画中かどうかの状態
   const [error, setError] = useState(null); // エラーメッセージ
+  const [elapsedTime, setElapsedTime] = useState(0); // 録画経過時間（秒）
 
   /**
    * 面接（録画）を開始する非同期関数
@@ -58,11 +60,13 @@ const InterviewRecordVideo = ({ username, onStopInterview }) => {
       // 録画開始時
       mediaRecorderRef.current.onstart = () => {
         setIsRecording(true);
+        setElapsedTime(0); // タイマーをリセット
       };
 
       // 録画停止時
       mediaRecorderRef.current.onstop = () => {
         setIsRecording(false);
+        setElapsedTime(0); // タイマーをリセット
         // 録画データの断片を結合して単一のBlobオブジェクトを生成
         const videoBlob = new Blob(recordedChunksRef.current, { type: mimeTypeRef.current });
         const filename = `${username || "Guest"}_${Date.now()}.webm`;
@@ -100,6 +104,27 @@ const InterviewRecordVideo = ({ username, onStopInterview }) => {
       setError(error.message);
     }
   };
+
+  /**
+   * 録画中にタイマーを更新するuseEffect
+   */
+  useEffect(() => {
+    let interval = null;
+    if (isRecording) {
+      interval = setInterval(() => {
+        setElapsedTime((prevTime) => prevTime + 1);
+      }, 1000);
+    } else {
+      if (interval) {
+        clearInterval(interval);
+      }
+    }
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isRecording]);
 
   /**
    * APIレスポンスをチェックするヘルパー関数
@@ -176,30 +201,32 @@ const InterviewRecordVideo = ({ username, onStopInterview }) => {
   // --- レンダリング ---
   return (
     <>
-      <div className="flex flex-col justify-center items-center pb-5">
+      <div className="flex flex-col justify-center items-center pb-3 md:pb-5">
         <div className="mt-3 mx-auto shawdow shadow-2xl backdrop-blur">
           {/* ライブプレビュー用のvideo要素 */}
           <video
             ref={liveVideoRef}
-            className={`md:w-120 md:h-70 border border-2 rounded-md object-cover p-3 shadow-sm backdrop-blur -scale-x-100 ${isRecording ? "border-emerald-200" : "border-white/50"}`}
+            className={`w-full max-w-[95vw] md:w-120 md:max-w-none md:h-70 border border-2 rounded-md object-cover p-2 md:p-3 shadow-sm backdrop-blur -scale-x-100 ${isRecording ? "border-emerald-200" : "border-white/50"}`}
             autoPlay
             playsInline
             muted
           />
         </div>
-        <div className="mt-4 mx-auto p-2">
+        {/* 録画タイマー表示 */}
+        <RecordingTimer elapsedTime={elapsedTime} isRecording={isRecording} />
+        <div className="mt-3 md:mt-4 mx-auto p-2">
           {/* 録画状態に応じて「開始」または「終了」ボタンを表示 */}
           {isRecording ? (
             <button
               onClick={stopInterview}
-              className="mt-5 px-6 py-2 bg-red-100 text-red-600 border border-2 border-white/50 rounded-full font-semibold shadow-sm hover:scale-105 mx-5"
+              className="mt-3 md:mt-5 px-5 md:px-6 py-2 bg-red-100 text-red-600 border border-2 border-white/50 rounded-full font-semibold text-sm md:text-base shadow-sm hover:scale-105 mx-3 md:mx-5"
             >
               終了
             </button>
           ) : (
             <button
               onClick={startInterview}
-              className="mt-5 px-6 py-2 text-primary border border-2 border-white/50 rounded-full font-semibold shadow-sm hover:scale-103 hover:shadow-2xl active:scale-98 mx-5 transition duration-500 ease-in-out"
+              className="mt-3 md:mt-5 px-5 md:px-6 py-2 text-primary border border-2 border-white/50 rounded-full font-semibold text-sm md:text-base shadow-sm hover:scale-103 hover:shadow-2xl active:scale-98 mx-3 md:mx-5 transition duration-500 ease-in-out"
             >
               開始
             </button>

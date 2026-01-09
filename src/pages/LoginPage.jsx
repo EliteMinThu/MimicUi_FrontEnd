@@ -42,8 +42,8 @@ function LoginPage() {
       if (result.is_verified === false){
           return navigate("/email-verify", { state: { allowed: true } });
       }
-      // ログインが成功した場合、CVフォームページに遷移する
-      navigate("/cvform");
+      // ログインが成功した場合、ページ選択ページに遷移する
+      navigate("/select");
     } else {
       // ログインが失敗した場合、エラーメッセージを設定する
       // setErrorMessage("イーメールとパスワードが間違っています。");

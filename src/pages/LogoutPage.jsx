@@ -1,5 +1,5 @@
 // 必要なReactのフックをインポートする
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import LoadingPage from "./LoadingPage.jsx";
@@ -9,7 +9,7 @@ import LoadingPage from "./LoadingPage.jsx";
  * このページにアクセスすると、自動的にログアウト処理が行われ、ログインページにリダイレクトされる
  */
 const LogoutPage = () => {
-    const { logout, isLoading } = useAuth();
+    const { logout } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -19,7 +19,8 @@ const LogoutPage = () => {
         };
 
         doLogout();
-    }, [logout, navigate]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // 空の依存配列で、コンポーネントマウント時に一度だけ実行
 
     return <LoadingPage />;
 };

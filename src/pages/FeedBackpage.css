@@ -83,7 +83,7 @@
 /* Initial state - elements hidden until they scroll into view */
 .feedback-section-title {
   opacity: 0;
-  transform: translateY(30px);
+  transform: translateY(20px);
   transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }
 
@@ -132,6 +132,30 @@
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 1s ease-out 0.3s, transform 1s ease-out 0.3s;
+}
+
+/* Mobile: Smaller transform distances for smoother animations on small screens */
+@media (max-width: 768px) {
+  .feedback-section-title {
+    transform: translateY(15px);
+  }
+  
+  .feedback-card-container {
+    transform: translateX(30px);
+  }
+  
+  .feedback-answer-container {
+    transform: translateX(-30px);
+  }
+  
+  .feedback-radar-container {
+    transform: translateY(20px);
+  }
+  
+  .feedback-card-text,
+  .feedback-answer-text {
+    transform: translateY(15px);
+  }
 }
 
 /* Animated state - triggered when element is in viewport */

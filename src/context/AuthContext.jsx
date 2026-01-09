@@ -164,6 +164,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       // フロントエンドのユーザー状態をnullにリセットする
       setUser(null);
+      setIsVerified(null);
     }
   };
 

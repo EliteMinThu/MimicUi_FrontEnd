@@ -70,26 +70,26 @@ const Question = ({ questionText }) => {
   // --- レンダリング ---
   return (
     <>
-      <div className="border border-1 border-gray-200 bg-white/50 rounded-md shadow-lg shadow-gray-500/50 mt-8 py-2 min-w-9/12 h-fit">
+      <div className="border border-1 border-gray-200 bg-white/50 rounded-md shadow-lg shadow-gray-500/50 mt-4 md:mt-8 py-2 md:py-3 w-full min-w-0 md:min-w-9/12 h-fit">
         <div className="flex justify-between h-full items-center">
           {/* 左側の面接官アイコン (モバイルでは非表示) */}
-          <div className="ms-10">
+          <div className="ms-4 md:ms-10">
             <img
-              className="w-12 h-15 hidden md:block"
+              className="w-10 h-12 md:w-12 md:h-15 hidden md:block"
               src={interview_man}
               alt="Interview-Man"
             />
           </div>
           {/* 中央の質問テキスト */}
-          <div className="font-bold text-2xl text-primary text-center px-4">
+          <div className="font-bold text-base md:text-2xl text-primary text-center px-2 md:px-4 flex-1">
             {questionText}
           </div>
           {/* 右側の音声読み上げアイコン/ローディングスピナー */}
-          <div className="pe-5 md:pe-10 hover:scale-103 active:scale-98 cursor-pointer transition duration-500 ease-in-out" onClick={handleTTS}>
+          <div className="pe-3 md:pe-5 lg:pe-10 hover:scale-103 active:scale-98 cursor-pointer transition duration-500 ease-in-out flex-shrink-0" onClick={handleTTS}>
             {isSpeaking ? (
               <LoadingSpinner /> // 読み上げ中はスピナーを表示
             ) : (
-              <img className="w-12 h-10" src={speaker} alt="speaker" /> // 通常はスピーカーアイコンを表示
+              <img className="w-8 h-7 md:w-12 md:h-10" src={speaker} alt="speaker" /> // 通常はスピーカーアイコンを表示
             )}
           </div>
         </div>

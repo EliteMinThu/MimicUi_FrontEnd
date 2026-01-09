@@ -88,20 +88,20 @@ const InterviewScreen = () => {
   // --- レンダリング ---
   return (
     <>
-      <div className="flex justify-center items-center w-full h-fit md:h-[530px]">
-        <div className="flex flex-col justify-start items-center w-full md:w-10/12 rounded-none md:rounded-2xl md:border md:border-gray-400 md:shadow-2xl md:shadow-gray-500/50 space-y-6">
+      <div className="flex justify-center items-center w-full h-fit md:h-[530px] px-2 md:px-0">
+        <div className="flex flex-col justify-start items-center w-full md:w-10/12 rounded-none md:rounded-2xl md:border md:border-gray-400 md:shadow-2xl md:shadow-gray-500/50 space-y-4 md:space-y-6 py-4 md:py-0">
           {/* エラーメッセージの表示エリア */}
           {error && !isLoading && (
-            <div className="text-red-500 p-4">
-              <p>{currentQuestionText}</p>
+            <div className="text-red-500 p-3 md:p-4 w-full px-4 md:px-6">
+              <p className="text-sm md:text-base text-center">{currentQuestionText}</p>
             </div>
           )}
           {/* 質問表示コンポーネント */}
-          <div className="flex justify-center w-10/12">
+          <div className="flex justify-center w-full md:w-10/12 px-2 md:px-0">
             <Question questionText={currentQuestionText} />
           </div>
           {/* ビデオ録画コンポーネント */}
-          <div className="flex justify-center">
+          <div className="flex justify-center w-full px-2 md:px-0">
             <InterviewRecordVideo onStopInterview={handleNextQuestion} />
           </div>
         </div>

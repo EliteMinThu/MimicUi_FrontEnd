@@ -13,6 +13,10 @@ import EmailVerificationPage from "./pages/EmailVerificationPage.jsx";
 import Verified from "./pages/Verified.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import FeedBackpage from "./pages/FeedBackpage.jsx";
+import PageSelectionPage from "./pages/PageSelectionPage.jsx";
+import LoadingPage1 from "./pages/LoadingPage1.jsx";
+
+
 
 const AppContent = ({ user, isVerified }) => {
   return (
@@ -20,7 +24,17 @@ const AppContent = ({ user, isVerified }) => {
       <Routes>
         <Route
           path="/"
-          element={!user ? <Navigate to="/login" /> : <Navigate to="/cvform" />}
+          element={!user ? <Navigate to="/login" /> : <Navigate to="/select" />}
+        />
+        
+        {/* ページ選択ページ */}
+        <Route
+          path="/select"
+          element={
+            <ProtectedRoute>
+              <PageSelectionPage />
+            </ProtectedRoute>
+          }
         />
 
         <Route path="/login" element={<LoginPage />} />
@@ -31,6 +45,8 @@ const AppContent = ({ user, isVerified }) => {
 
           {/*feedBack page */}
           <Route path="/feedback" element={<FeedBackpage />} />
+
+          <Route path="/loading1" element={<LoadingPage1 />} />
 
         <Route path="/email-verify" element={<EmailVerificationPage />} />
           <Route path="/verify/:token" element={<Verified />} />
