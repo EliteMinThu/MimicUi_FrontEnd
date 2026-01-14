@@ -8,7 +8,7 @@ export const useNoti = () => {
 }
 
 export const NotiProvider = ({children}) => {
-    const [ message, setMessage ] = useState("");
+    const [ message, setMessage ] = useState(null);
 
     const pushMessage = (msg) => {
         setMessage(msg);

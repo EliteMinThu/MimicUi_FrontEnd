@@ -19,9 +19,9 @@ const Notification = () => {
 
     if(!message) return null;
     return (
-        <div className={`border border-white/50 shadow-2xl shadow-gray-500/50 backdrop-blur-md rounded-md w-full h-full px-10 py-3 `}>
-            <div className={`transition-opacity duration-1000 w-100 h-auto ${show ? "opacity-100" : "opacity-0"} flex justify-center items-center`}>
-                {message}
+        <div className={`border border-white/50 shadow-2xl shadow-gray-500/50 backdrop-blur-md rounded-md w-auto h-full`}>
+            <div className={`text-xs md:text-md font-bold transition-opacity duration-1000 w-80 h-auto ${show ? "opacity-100" : "opacity-0"} flex justify-center items-center ${message.success ? "text-primary" : "text-red-500"} px-7 py-3.5 text-center`}>
+                {message.errorMessage}
             </div>
         </div>
     )

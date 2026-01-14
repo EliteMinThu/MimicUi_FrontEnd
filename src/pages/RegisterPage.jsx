@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import background from "../assets/imgs/background.png";
 import logo_head from "../assets/imgs/logo-head.png";
 import logo_text from "../assets/imgs/logo-text.png";
+import {useNoti} from "../context/NotiContext.jsx";
+import Notification from "./components/Notification.jsx";
 
 /**
  * 新規登録ページを表示・処理するコンポーネント
@@ -24,8 +26,8 @@ function RegisterPage() {
     // エラーメッセージを管理するState
     const [errorMessage, setErrorMessage] = useState("");
 
-
-
+    //NotiContext から pushMessage
+    const {pushMessage} = useNoti();
 
     // --- Hooks ---
     // AuthContextからregister関数を取得
@@ -43,16 +45,14 @@ function RegisterPage() {
 
         // パスワードと確認用パスワードが一致しない場合はエラーメッセージを設定して処理を中断
         if (password !== confirmPassword) {
-            setErrorMessage("パスワードが位置してないです。");
-            console.log(errorMessage);
+            pushMessage({success :false, errorMessage : "パスワードが位置してないです!!!"});
             return;
         }
 
         // --- Limit ---
         //パスワードをせめて8個以上にする
         if(password.length < 8) {
-            setErrorMessage("パスワードは8個以上にしてください。");
-            console.log(errorMessage);
+            pushMessage({success : false, errorMessage : "パスワードを8個以上してください。"});
             return;
         }
 
@@ -65,8 +65,7 @@ function RegisterPage() {
             navigate("/email-verify", { state: { allowed: true } });
         } else {
             // 登録が失敗した場合、エラーメッセージを設定する
-            setErrorMessage(result.message);
-            console.log(result.message);
+            pushMessage(result);
         }
     };
 
@@ -78,6 +77,9 @@ function RegisterPage() {
                 className="w-full h-screen bg-cover bg-center"
                 style={{ backgroundImage: `url(${background})` }}
             >
+                <div className={`fixed top-5 left-1/2 -translate-x-1/2 z-10`}>
+                    <Notification/>
+                </div>
                 <div className="min-h-screen flex items-center justify-center shadow-lg shadow-gray-500/50">
 
                     {/* 登録フォームのカード */}
@@ -85,7 +87,7 @@ function RegisterPage() {
                         <div className="flex-row justify-center items-center rounded-3xl border border-gray-200 shadow-2xl shadow-gray-500/50 px-10 py-15">
 
                             {/* カード上部に表示されるロゴ */}
-                            <div className={`absolute -top-12 left-1/2 -translate-x-1/2`}>
+                            <div className={`absolute -top-12 left-1/2 -translate-x-1/2 cursor-pointer`} onClick={() => navigate("/login")}>
                                 <img src={logo_head} alt="logo-head" className="w-25 border-1 p-0.5 border-gray-400 shadow-2xl backdrop-blur-xl rounded-full" />
                             </div>
 
@@ -189,22 +191,17 @@ function RegisterPage() {
                                 </div>
 
                                 {/* 新規登録ボタン */}
-                                <div className="flex items-center justify-center">
+                                <div className="flex items-center justify-center ">
                                     <button
                                         type="submit"
-                                        className="text-black/80 hover:shadow-[inset_0_0_10px_#599896] hover:scale-103 transition-transform duration-500 active:scale-98 border border-gray-400 rounded-full shadow-md px-5.5 py-1.5 "
+                                        className="text-black/80 hover:shadow-[inset_0_0_10px_#599896] hover:scale-103 transition-transform duration-500 active:scale-98 border border-gray-400 rounded-full shadow-md px-5.5 py-1.5 cursor-pointer"
                                     >
                                         新規登録
                                     </button>
                                 </div>
                             </form>
 
-                            {/* エラーメッセージ表示エリア */}
-                            {errorMessage && (
-                                <p className="mt-4 text-sm text-red-600 font-semibold text-center">
-                                    {errorMessage}
-                                </p>
-                            )}
+
                         </div>
                     </div>
                 </div>

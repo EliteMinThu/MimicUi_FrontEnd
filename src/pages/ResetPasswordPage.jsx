@@ -5,6 +5,8 @@ import {useNavigate, useParams} from "react-router-dom";
 import background from "../assets/imgs/background.png";
 import logo_head from "../assets/imgs/logo-head.png";
 import logo_text from "../assets/imgs/logo-text.png";
+import {useNoti} from "../context/NotiContext.jsx";
+import Notification from "./components/Notification.jsx";
 
 /**
  * 新規登録ページを表示・処理するコンポーネント
@@ -16,6 +18,7 @@ function ResetPasswordPage() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const {token} = useParams();
+    const { pushMessage } = useNoti();
 
     // パスワード表示/非表示の状態を管理するState
     const [showPassword, setShowPassword] = useState(false);
@@ -27,11 +30,24 @@ function ResetPasswordPage() {
 
 
 
+
+
     const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         // デフォルトのフォーム送信動作をキャンセル
         event.preventDefault();
+
+        if (password !== confirmPassword) {
+            pushMessage({success: false, errorMessage: "パスワードが位置しいない!!!"})
+            return;
+        }
+        // --- Limit ---
+        //パスワードをせめて8個以上にする
+        if(password.length < 8) {
+            pushMessage({success : false, errorMessage : "パスワードを8個以上してください。"});
+            return;
+        }
         setLoading(true);
         try {
             const response = await fetch(`http://localhost:5000/api/auth/reset-password/${token}`, {
@@ -42,9 +58,13 @@ function ResetPasswordPage() {
             })
 
             if(response.ok) {
-                return navigate("/login");
+                navigate("/login");
+                pushMessage({success : true, errorMessage : "パスワード更新しました。ログインしてください."})
+                return;
+            } else {
+                pushMessage({success : false, errorMessage : "最初からやり直してください!!!"})
             }
-            console.log("error")
+
 
         }catch (error) {
             console.log(error);
@@ -62,6 +82,9 @@ function ResetPasswordPage() {
                 className="w-full h-screen bg-cover bg-center"
                 style={{ backgroundImage: `url(${background})` }}
             >
+                <div className={`fixed top-5 left-1/2 -translate-x-1/2 z-10`}>
+                    <Notification/>
+                </div>
                 <div className="min-h-screen flex items-center justify-center shadow-lg shadow-gray-500/50">
 
                     {/* 登録フォームのカード */}
@@ -69,8 +92,8 @@ function ResetPasswordPage() {
                         <div className="flex-row justify-center items-center rounded-3xl border border-gray-200 shadow-2xl shadow-gray-500/50 px-10 py-15">
 
                             {/* カード上部に表示されるロゴ */}
-                            <div className={`absolute -top-12 left-1/2 -translate-x-1/2`}>
-                                <img src={logo_head} alt="logo-head" className="w-25 border-1 p-0.5 border-gray-400 shadow-2xl backdrop-blur-xl rounded-full" />
+                            <div className={`absolute -top-12 left-1/2 -translate-x-1/2 cursor-pointer z-10`}>
+                                <img src={logo_head} alt="logo-head" className="w-25 border-1 p-0.5 border-gray-400 shadow-2xl backdrop-blur-xl rounded-full" onClick={() => {navigate('/login')}}/>
                             </div>
 
                             {/* 登録フォーム */}
@@ -89,8 +112,8 @@ function ResetPasswordPage() {
                                         </svg>
                                         <input
                                             type={showPassword ? "text" : "password"}
-                                            className="flex-1 focus:outline-none bg-transparent w-8/12"
-                                            placeholder="New Password"
+                                            className="flex-1 focus:outline-none bg-transparent w-full"
+                                            placeholder="新しいパスワード"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             required
@@ -119,8 +142,8 @@ function ResetPasswordPage() {
                                         </svg>
                                         <input
                                             type={showConfirmPassword ? "text" : "password"}
-                                            className="flex-1 focus:outline-none bg-transparent w-8/12"
-                                            placeholder="New Confirm Password"
+                                            className="flex-1 focus:outline-none bg-transparent w-full"
+                                            placeholder="確認新しいパスワード"
                                             value={confirmPassword}
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             required
@@ -145,19 +168,14 @@ function ResetPasswordPage() {
                                 <div className="flex items-center justify-center">
                                     <button
                                         type="submit"
-                                        className="text-black/80 hover:shadow-[inset_0_0_10px_#599896] hover:scale-103 transition-transform duration-500 active:scale-98 border border-gray-400 rounded-full shadow-md px-5.5 py-1.5 "
+                                        className="text-black/80 hover:shadow-[inset_0_0_10px_#599896] hover:scale-103 transition-transform duration-500 active:scale-98 border border-gray-400 rounded-full shadow-md px-5.5 py-1.5 cursor-pointer"
                                     >
                                         パスワード更新
                                     </button>
                                 </div>
                             </form>
 
-                            {/* エラーメッセージ表示エリア */}
-                            {errorMessage && (
-                                <p className="mt-4 text-sm text-red-600 font-semibold text-center">
-                                    {errorMessage}
-                                </p>
-                            )}
+
                         </div>
                     </div>
                 </div>

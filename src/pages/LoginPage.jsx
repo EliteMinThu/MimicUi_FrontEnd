@@ -42,12 +42,14 @@ function LoginPage() {
       if (result.is_verified === false){
           return navigate("/email-verify", { state: { allowed: true } });
       }
+        console.log(result);
+
       // ログインが成功した場合、ページ選択ページに遷移する
       navigate("/select");
     } else {
       // ログインが失敗した場合、エラーメッセージを設定する
       // setErrorMessage("イーメールとパスワードが間違っています。");
-        pushMessage(result.errorMessage);
+        pushMessage(result);
     }
   };
 

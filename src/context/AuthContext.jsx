@@ -93,11 +93,10 @@ export const AuthProvider = ({ children }) => {
         return { success: true };
       } else {
         // 失敗した場合、バックエンドからのエラーメッセージを返す
-        return { success: false, error: data.message || "Registration failed" };
+        return { success: false, errorMessage: data.RegisterError || "新規登録はしっぱいしました!!!" };
       }
     } catch (error) {
-      console.error("Registration error:", error);
-      return { success: false, error: error.message };
+      return { success: false, error: error };
     } finally {
       setIsLoading(false);
     }
@@ -124,12 +123,14 @@ export const AuthProvider = ({ children }) => {
       if (response.ok) {
 
 
-        if(data.user) {
+        if(data.is_verified && data.user) {
             // ログイン成功後、返されたユーザー情報でStateを更新
             setUser(data.user);
-        }else {
+            console.log(data.user)
+        }else if (data.is_verified === false) {
             // ログイン成功後、返されたユーザー情報にis_verifiedがfalse の場合 isVerified Stateを更新
             setIsVerified(data);
+            console.log(data)
         }
 
         return { success: true, is_verified: data.is_verified };
