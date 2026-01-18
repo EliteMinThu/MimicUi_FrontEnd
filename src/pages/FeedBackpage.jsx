@@ -4,14 +4,23 @@ import logoHead from "../assets/imgs/logo-head.png";
 import RadarCard from "./components/RadarCard.jsx";
 import "./FeedBackpage.css";
 import { initFeedBackAnimations } from "./FeedBackpage.animations.js";
+import {Navigate, useLocation} from "react-router-dom";
 
 
-const FeedBackpage = () => {
+const FeedBackpage = ({state}) => {
+    const location = useLocation();
+    const state1 = location.state;
+    console.log("state data", state)
+
   useEffect(() => {
     // Initialize animations when component mounts
     initFeedBackAnimations();
   }, []);
-
+    if (!state?.allowed && !state1.allowed) {
+        return <Navigate to="/cvform" replace />;
+    }
+    const result = state?.result ?? state1?.result;
+    console.log("feedBackpage", result);
   return <>
               <div className={`flex-row justify-center items-center w-full h-full backdrop-blur-8xl px-4 md:px-0`}>
                   <div className={`h-12/12 pt-10 md:pt-25`}>
@@ -23,7 +32,9 @@ const FeedBackpage = () => {
                     <div className="flex justify-center items-center w-full mt-6 md:mt-10">
                         <div className={`feedback-grade-card relative card border border-gray-400 rounded-lg w-[140px] h-[186px] md:w-[190px] md:h-[254px]`}>
                             <div className="flex justify-center items-center bg-white/90 w-full h-full rounded-lg">
-                                <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-4/6 feedback-grade-text text-6xl md:text-8xl leading-none text-center text-hu">A</p>
+                                <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-4/6 feedback-grade-text text-6xl md:text-8xl leading-none text-center text-hu">
+                                    {result?.grade ?? "E"}
+                                </p>
                                 {/*<span className="text-4xl leading-none  text-hu">+</span>*/}
                             </div>
                         </div>
@@ -66,12 +77,7 @@ const FeedBackpage = () => {
                                 {/* Text Content */}
                                 <div className="px-4 md:px-10 text-center">
                                     <p className="feedback-card-text relative leading-relaxed md:leading-loose text-sm md:text-base text-black before:content-['『'] before:text-xl md:before:text-2xl before:text-hu after:content-['』'] after:text-xl md:after:text-2xl after:text-hu">
-                                        今回の自己紹介は、内容が分かりやすく、全体の流れも自然でした。
-                                        特に、自分の強みや興味を具体的に書いている点がとても良いと思います。
-                                        一方で、少し情報が多いので、重要なポイントを絞るとさらに伝わりやすくなります。
-                                        文末の表現を統一すると、より丁寧で読みやすい文章になります。
-                                        また、最後に今後の目標や意気込みを一文加えると、印象がより良くなるでしょう。
-                                        全体として、前向きで好印象な自己紹介になっています。
+                                        {result?.mimic_feedback ?? 'mimicFeedback'}
                                     </p>
                                 </div>
                             </div>
@@ -87,14 +93,14 @@ const FeedBackpage = () => {
                           </p>
                       </div>
                       <div className="feedback-radar-container w-full flex justify-center mt-4 md:mt-6">
-                      <RadarCard/>
+                      <RadarCard radar_values={result?.radar_values ?? [0.5, 0.5, 0.5, 0.5, 0.5]}/>
                       </div>
                   </div>
 
                   <div className={`h-12/12 pt-8 md:pt-10 px-4 md:px-0`}>
                       <div className={`flex justify-center items-center w-full`}>
                           <p className={`feedback-section-title border px-4 md:px-10 py-2 md:py-3 text-center font-bold text-brand bg-white/50 rounded-md text-sm md:text-base`}>
-                              簡単な自己紹介をお願いします。
+                              {result?.question ?? 'QQ'}
                           </p>
                       </div>
                       <div className="feedback-answer-container relative mt-8 md:mt-15 flex w-full justify-center items-center">
@@ -103,16 +109,23 @@ const FeedBackpage = () => {
                           </div>
                           <div className="px-4 md:px-10 text-center bg-white rounded-md py-12 md:py-20 border border-brand rounded-lg w-full max-w-[95vw] md:w-10/12">
                               <p className="feedback-answer-text relative leading-relaxed md:leading-loose text-sm md:text-base text-black before:content-['『'] before:text-xl md:before:text-2xl before:text-hu after:content-['』'] after:text-xl md:after:text-2xl after:text-hu">
-                                  今回の自己紹介は、内容が分かりやすく、全体の流れも自然でした。
-                                  特に、自分の強みや興味を具体的に書いている点がとても良いと思います。
-                                  一方で、少し情報が多いので、重要なポイントを絞るとさらに伝わりやすくなります。
-                                  文末の表現を統一すると、より丁寧で読みやすい文章になります。
-                                  また、最後に今後の目標や意気込みを一文加えると、印象がより良くなるでしょう。
-                                  全体として、前向きで好印象な自己紹介になっています。
+                                  {result?.transcript ?? 'AA'}
                               </p>
                           </div>
 
                           </div>
+                      <div className="feedback-answer-container relative mt-8 md:mt-15 flex w-full justify-center items-center">
+
+                          <video
+                              src={result.video_url}
+                              controls
+                              width="350"
+                              height="200"
+                              className={` border-1 border-brand p-1 rounded-xl bg-secondary shadow-2xl `}
+                          />
+
+
+                      </div>
                       </div>
                   </div>
 

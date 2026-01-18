@@ -85,6 +85,10 @@ const InterviewScreen = () => {
     ? questions[currentIndex]?.data // 現在の質問テキスト
     : "質問が見つかりませんでした。"; // 質問がない場合
 
+  const currentQuestionId = questions[currentIndex]?.id;
+  const currentQuestionCategory = questions[currentIndex]?.category;
+    // console.log(questions)
+    // console.log(currentQuestionId)
   // --- レンダリング ---
   return (
     <>
@@ -102,7 +106,7 @@ const InterviewScreen = () => {
           </div>
           {/* ビデオ録画コンポーネント */}
           <div className="flex justify-center w-full px-2 md:px-0">
-            <InterviewRecordVideo onStopInterview={handleNextQuestion} />
+            <InterviewRecordVideo onStopInterview={handleNextQuestion}  questionId={currentQuestionId} category={currentQuestionCategory} questionText={currentQuestionText} />
           </div>
         </div>
       </div>

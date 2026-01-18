@@ -1,12 +1,13 @@
 // 必要なライブラリやコンポーネント、画像をインポートする
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import {useNavigate, Link, Navigate} from "react-router-dom";
 import background from "../assets/imgs/background.png";
 import logo_head from "../assets/imgs/logo-head.png";
 import logo_text from "../assets/imgs/logo-text.png";
 import LoadingPage from "./LoadingPage.jsx";
 import Notification from "./components/Notification.jsx";
 import {useNoti} from "../context/NotiContext.jsx";
+import {useAuth} from "../context/AuthContext.jsx";
 
 
 function ForgetPasswordPage() {
@@ -14,16 +15,18 @@ function ForgetPasswordPage() {
     const [errorMessage, setErrorMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const { pushMessage } = useNoti();
+    const { setIsLoading } = useNoti();
 
     const navigate = useNavigate();
 
-    if (loading) {
-        return <LoadingPage/>
-    }
+    const { user } = useAuth();
 
+    if (user) {
+        return <Navigate to="/select" replace />;
+    }
     const handleSubmit = async (event) => {
         event.preventDefault();
-        setLoading(true);
+        setIsLoading(true);
        try {
            const response = await fetch ('http://localhost:5000/api/auth/forgot-password', {
                method: 'POST',
@@ -40,7 +43,7 @@ function ForgetPasswordPage() {
        }catch(err) {
            console.log(err);
        }finally {
-           setLoading(false);
+           setIsLoading(false);
        }
 
     };

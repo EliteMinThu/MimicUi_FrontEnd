@@ -22,9 +22,10 @@ function gridPolygon(cx, cy, r, n) {
     });
 }
 
-export default function RadarCard() {
+export default function RadarCard({radar_values}) {
+    // console.log("RadarCard", radar_values);
     const labels = ["速度", "声量", "目線", "表情", "文法"];
-    const values = [1, 0.7, 0.8, 0.6, 0.75];
+    const values = radar_values ;
 
     const size = 320;
     const cx = size / 2;

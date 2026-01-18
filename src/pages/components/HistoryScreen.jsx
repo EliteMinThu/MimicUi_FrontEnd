@@ -1,4 +1,4 @@
-import React, { useState } from "react"; // 1. useState ကို import လုပ်ပါ
+import React, {useEffect, useState} from "react"; // 1. useState ကို import လုပ်ပါ
 import FeedBackpage from "../FeedBackpage.jsx";
 
 /**
@@ -9,19 +9,52 @@ const HistoryScreen = () => {
     const [showFeedback, setShowFeedback] = useState(false);
     // Coordinates အတွက် state အသစ်ထပ်ထည့်ပါ
     const [clickPosition, setClickPosition] = useState({ x: 0, y: 0 });
+    const [historyData, setHistoryData] = useState([]);
+
+    const [clickedId, setClickedId] = useState();
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = historyData.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(historyData.length / itemsPerPage);
+
+
+
+    useEffect(() => {
+        const history_data = async() => {
+            const response = await fetch("http://localhost:5000/api/history/history-data", {
+                credentials: "include",
+            })
+            const data = await response.json();
+            const reversed = [...data.history].reverse();
+            setHistoryData(reversed);
+            console.log(data.history);
+        }
+        history_data();
+    }, [])
+
+
 
     // サンプルデータ
-    const historyData = [
-        { id: 1, question: "長所", date: "1月28日", file: "Detail", grade: "A" },
-        { id: 2, question: "短所", date: "1月27日", file: "Detail", grade: "B" },
-        { id: 3, question: "志望動機", date: "1月26日", file: "Detail", grade: "A" },
-        { id: 4, question: "自己PR", date: "1月25日", file: "Detail", grade: "C" },
-        { id: 5, question: "ガクチカ", date: "1月24日", file: "Detail", grade: "B" },
-    ];
+    // const historyData = [
+    //     { id: 1, question: "長所", date: "1月28日", file: "Detail", grade: "A" },
+    //     { id: 2, question: "短所", date: "1月27日", file: "Detail", grade: "B" },
+    //     { id: 3, question: "志望動機", date: "1月26日", file: "Detail", grade: "A" },
+    //     { id: 4, question: "自己PR", date: "1月25日", file: "Detail", grade: "C" },
+    //     { id: 5, question: "ガクチカ", date: "1月24日", file: "Detail", grade: "B" },
+    // ];
 
+    //  クリックされた1件だけ取得
+    const selectedHistory = historyData.find(
+        (item) => item.id === clickedId
+    );
     // Modal ပိတ်မယ့် Function
     const handleCloseModal = () => {
         setShowFeedback(false);
+        setClickedId(null);
     };
 
     // Animation အတွက် style tag ထည့်ပါ (Tailwind config မပြင်ချင်သူများအတွက်)
@@ -44,9 +77,9 @@ const HistoryScreen = () => {
     return (
         <>
             <div className={`flex justify-center items-center w-full min-h-[400px] md:h-[530px] px-2 md:px-0`}>
-                <div className="relative w-full md:w-10/12 rounded-2xl md:rounded-3xl border border-gray-400 shadow-2xl px-3 md:px-5 pb-1 pt-6 md:pt-4 shadow-gray-500/50">
+                <div className="relative mb-5 w-full h-full md:w-10/12 rounded-2xl md:rounded-3xl border border-gray-400 shadow-2xl px-3 md:px-5 pb-1 pt-6 md:pt-4 shadow-gray-500/50">
                     {/* ページのタイトル部分 */}
-                    <div className="absolute -top-8 md:-top-11 right-4 md:right-6">
+                    <div className="absolute -top-11 right-4 md:right-6 ">
                         <div className="px-4 md:px-10 py-1 rounded-full bg-BGdanger shadow-md shadow-gray-500/50 border border-gray-400">
                             <span className="text-sm md:text-xl text-black">履歴一覧</span>
                         </div>
@@ -65,7 +98,7 @@ const HistoryScreen = () => {
                             </button>
                         ))}
                     </div>
-                    
+
                     {/* Mobile: Hidden header labels (will be shown in card layout) */}
                     <div className="md:hidden text-xs text-gray-600 mb-2 px-2">
                         <span className="text-xs">履歴データ</span>
@@ -75,13 +108,17 @@ const HistoryScreen = () => {
                     <div className="overflow-x-auto md:overflow-x-hidden overflow-y-visible">
                         {/* Desktop: Grid layout */}
                         <div className="hidden md:block">
-                            {historyData.map((item) => (
+                            {currentItems.map((item) => (
                                 <div
                                     key={item.id}
-                                    className="grid grid-cols-5 items-center px-4 md:px-8 py-3 md:py-4 text-gray-800 odd:bg-white even:bg-secondary mb-1.5 rounded text-sm md:text-md"
+                                    className="grid grid-cols-5 items-center px-4 md:px-8 py-3 md:py-5 text-gray-800 odd:bg-white even:bg-secondary mb-1.5 rounded-xl text-sm md:text-md"
                                 >
-                                    <div className="text-center">{item.question}</div>
-                                    <div className="text-center">{item.date}</div>
+                                    <div className="text-center">{item.category}</div>
+                                    <div className="text-center">
+                                        {
+                                            item.date.split('T')[0]
+                                        }
+                                    </div>
 
                                     {/* 3. Detail ကိုနှိပ်ရင် setShowFeedback(true) ကိုခေါ်ပါ */}
                                     <div
@@ -94,24 +131,60 @@ const HistoryScreen = () => {
                                                 y: rect.top + rect.height / 2
                                             });
                                             setShowFeedback(true);
+                                            setClickedId(item.id);
                                         }}
                                     >
                                         {item.file}
                                     </div>
 
-                                    <div className="text-center font-semibold">{item.grade}</div>
+                                    <div className="text-center font-semibold">{item.score}</div>
                                     <div className="flex justify-center">
-                                        <button className="px-3 md:px-5 py-1 rounded-full bg-danger/50 border border-gray-500 text-xs md:text-sm">
+                                        <button
+                                            className="px-3 md:px-5 py-1 rounded-full bg-danger/50 border border-gray-500 text-xs md:text-sm cursor-pointer hover:scale-103 active:scale-97"
+                                            onClick={async () => {
+                                                // if (!window.confirm("本当に削除しますか？")) return;
+
+                                                try {
+                                                    const response = await fetch(
+                                                        "http://localhost:5000/api/history/delete-history",
+                                                        {
+                                                            method: "DELETE",
+                                                            headers: {
+                                                                "Content-Type": "application/json",
+                                                            },
+                                                            credentials: "include", // JWT cookie
+                                                            body: JSON.stringify({
+                                                                history_id: item.id, // クリックした行の id
+                                                            }),
+                                                        }
+                                                    );
+
+                                                    if (!response.ok) {
+                                                        throw new Error("Delete failed");
+                                                    }
+
+                                                    //  UI からも削除
+                                                    setHistoryData((prev) =>
+                                                        prev.filter((h) => h.id !== item.id)
+                                                    );
+
+                                                } catch (error) {
+                                                    console.error(error);
+                                                    alert("削除に失敗しました");
+                                                }
+                                            }}
+                                        >
                                             Delete
                                         </button>
+
                                     </div>
                                 </div>
                             ))}
                         </div>
 
                         {/* Mobile: Card layout */}
-                        <div className="md:hidden space-y-3">
-                            {historyData.map((item) => (
+                        <div className="md:hidden space-y-3 ">
+                            {currentItems.map((item) => (
                                 <div
                                     key={item.id}
                                     className="bg-white border border-gray-300 rounded-lg p-3 shadow-sm"
@@ -119,28 +192,30 @@ const HistoryScreen = () => {
                                     <div className="flex justify-between items-start mb-2">
                                         <div>
                                             <div className="text-xs text-gray-500 mb-1">質問内容</div>
-                                            <div className="text-sm font-medium text-gray-800">{item.question}</div>
+                                            <div className="text-sm font-medium text-gray-800">{item.category}</div>
                                         </div>
                                         <div className="text-right">
                                             <div className="text-xs text-gray-500 mb-1">評価</div>
-                                            <div className="text-lg font-semibold text-gray-800">{item.grade}</div>
+                                            <div className="text-lg font-semibold text-gray-800">{item.score}</div>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="flex justify-between items-center mb-2 pt-2 border-t border-gray-200">
                                         <div>
                                             <div className="text-xs text-gray-500 mb-1">日時</div>
-                                            <div className="text-sm text-gray-700">{item.date}</div>
+                                            <div className="text-sm text-gray-700">{item.date.split('T')[0]}</div>
                                         </div>
                                         <div
-                                            className="text-sm text-blue-700 underline cursor-pointer"
+                                            className="text-center text-blue-700 underline cursor-pointer"
                                             onClick={(e) => {
+                                                // Mouse နှိပ်လိုက်တဲ့ မျက်နှာပြင် Screen နေရာ (x, y) ကို ယူပါတယ်
                                                 const rect = e.target.getBoundingClientRect();
                                                 setClickPosition({
                                                     x: rect.left + rect.width / 2,
                                                     y: rect.top + rect.height / 2
                                                 });
                                                 setShowFeedback(true);
+                                                setClickedId(item.id);
                                             }}
                                         >
                                             {item.file}
@@ -158,12 +233,27 @@ const HistoryScreen = () => {
                     </div>
 
                     {/* ページネーション */}
-                    <div className="my-3 flex justify-center gap-2 md:gap-4">
-                        {[1, 2, 3].map((page) => (
+                    {/*<div className="my-3 flex justify-center gap-2 md:gap-4">*/}
+                    {/*    {[1, 2, 3].map((page) => (*/}
+                    {/*        <button*/}
+                    {/*            key={page}*/}
+                    {/*            className={`w-8 h-8 md:w-10 md:h-10 rounded-full border shadow-sm text-xs md:text-sm ${*/}
+                    {/*                page === 1 ? "bg-orange-200 border-orange-300" : "bg-white border-gray-300"*/}
+                    {/*            }`}*/}
+                    {/*        >*/}
+                    {/*            {page}*/}
+                    {/*        </button>*/}
+                    {/*    ))}*/}
+                    {/*</div>*/}
+                    <div className="my-3 flex justify-center gap-2 md:gap-4 md:absolute md:bottom-2 md:left-1/2 md:-translate-x-1/2 ">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                             <button
                                 key={page}
-                                className={`w-8 h-8 md:w-10 md:h-10 rounded-full border shadow-sm text-xs md:text-sm ${
-                                    page === 1 ? "bg-orange-200 border-orange-300" : "bg-white border-gray-300"
+                                onClick={() => setCurrentPage(page)}
+                                className={`w-5 h-5 md:w-8 md:h-8 rounded-full border shadow-sm text-xs md:text-sm cursor-pointer hover:scale-103 active:scale-97 ${
+                                    page === currentPage
+                                        ? "bg-orange-200 border-orange-300"
+                                        : "bg-white border-gray-300"
                                 }`}
                             >
                                 {page}
@@ -174,7 +264,7 @@ const HistoryScreen = () => {
             </div>
 
             {/* 4. Feedback Modal (အဖြူရောင် Box) */}
-            {showFeedback && (
+            {showFeedback && selectedHistory && (
                 <div className="fixed inset-0 backdrop-blur-md bg-opacity-50 flex justify-center items-center z-50 p-2 md:p-0">
                     <style>{animationStyle}</style> {/* CSS Keyframes ထည့်သွင်းခြင်း */}
 
@@ -185,8 +275,8 @@ const HistoryScreen = () => {
                         // Box ပွင့်လာမယ့် အစမှတ်ကို သတ်မှတ်ပါတယ် (Mouse နှိပ်လိုက်တဲ့နေရာ)
                         // Mobile မှာ center ကနေ animate လုပ်မယ်
                         style={{
-                            transformOrigin: window.innerWidth < 768 
-                                ? "center center" 
+                            transformOrigin: window.innerWidth < 768
+                                ? "center center"
                                 : `${clickPosition.x - (window.innerWidth/2) + (window.innerWidth * 0.75 / 2)}px ${clickPosition.y - (window.innerHeight/2) + (window.innerHeight * 0.75 / 2)}px`
                             // သတိပြုရန် - အပေါ်က math က ရှုပ်ထွေးနိုင်တာမို့ ရိုးရိုးရှင်းရှင်း လိုချင်ရင် အောက်ကအတိုင်း သုံးနိုင်ပါတယ်:
                             // transformOrigin: "center center" // (ဒါဆိုရင်တော့ အလယ်ကနေ ကန်ထွက်လာပါမယ်)
@@ -203,7 +293,7 @@ const HistoryScreen = () => {
                                 </svg>
                             </span>
                         </button>
-                        <FeedBackpage/>
+                        <FeedBackpage state={  { allowed: true, result: selectedHistory, } }/>
                     </div>
                 </div>
             )}

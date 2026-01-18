@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }) => {
   // --- State管理 ---
   // ログインしているユーザー情報を保持するState
   const [user, setUser] = useState(null);
+    console.log(user)
 
   // verified user
   const [isVerified, setIsVerified] = useState(null);
@@ -125,8 +126,12 @@ export const AuthProvider = ({ children }) => {
 
         if(data.is_verified && data.user) {
             // ログイン成功後、返されたユーザー情報でStateを更新
-            setUser(data.user);
-            console.log(data.user)
+            const user = {
+                ...data.user,
+                is_verified: data.is_verified
+            };
+            setUser(user);
+            console.log(user)
         }else if (data.is_verified === false) {
             // ログイン成功後、返されたユーザー情報にis_verifiedがfalse の場合 isVerified Stateを更新
             setIsVerified(data);
@@ -171,7 +176,7 @@ export const AuthProvider = ({ children }) => {
 
   // Context.Providerを介して、認証に関する値や関数を子コンポーネントに提供する
   return (
-    <AuthContext.Provider value={{ user, isVerified, isLoading, setIsLoading, register, login, logout }}>
+    <AuthContext.Provider value={{ user, isVerified, isLoading, setUser, setIsLoading, register, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -70,7 +70,7 @@ const Question = ({ questionText }) => {
   // --- レンダリング ---
   return (
     <>
-      <div className="border border-1 border-gray-200 bg-white/50 rounded-md shadow-lg shadow-gray-500/50 mt-4 md:mt-8 py-2 md:py-3 w-full min-w-0 md:min-w-9/12 h-fit">
+      <div className="border border-1 border-gray-200 bg-white/10 backdrop-blur-xl rounded-md shadow-lg shadow-gray-500/50 mt-4 md:mt-8 py-2 md:py-3 w-full min-w-0 md:min-w-9/12 h-fit">
         <div className="flex justify-between h-full items-center">
           {/* 左側の面接官アイコン (モバイルでは非表示) */}
           <div className="ms-4 md:ms-10">

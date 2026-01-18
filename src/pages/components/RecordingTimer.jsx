@@ -24,9 +24,9 @@ const RecordingTimer = ({ elapsedTime, isRecording }) => {
   }
 
   return (
-    <div className="mt-2 flex items-center justify-center">
-      <div className="bg-red-500/90 text-white px-4 py-2 rounded-full font-mono font-bold text-lg md:text-xl shadow-lg flex items-center gap-2">
-        <span className="inline-block w-2 h-2 bg-white rounded-full animate-pulse"></span>
+    <div className="pt-7 flex items-center justify-center">
+      <div className="bg-white/10 text-hu border border-hu-300 px-4 py-2 rounded-full font-mono font-bold text-lg md:text-xl shadow-2xl flex items-center gap-2">
+        <span className="inline-block w-2 h-2 bg-gray-500 rounded-full animate-pulse"></span>
         {formatTime(elapsedTime)}
       </div>
     </div>

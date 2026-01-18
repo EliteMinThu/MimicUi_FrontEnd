@@ -1,5 +1,9 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
 import RecordingTimer from "./RecordingTimer.jsx";
+import {useAuth} from "../../context/AuthContext.jsx";
+import {renderToReadableStream} from "react-dom/server";
+import {useNavigate} from "react-router-dom";
+import FeedBackpage from "../FeedBackpage.jsx";
 
 /**
  * ユーザーのビデオと音声を録画し、サーバーにアップロードするコンポーネント
@@ -7,7 +11,7 @@ import RecordingTimer from "./RecordingTimer.jsx";
  * @param {string} props.username - ユーザー名（ファイル名に使用）
  * @param {function} props.onStopInterview - 録画停止時に呼び出されるコールバック関数
  */
-const InterviewRecordVideo = ({ username, onStopInterview }) => {
+const InterviewRecordVideo = ({ onStopInterview, questionId, category, questionText }) => {
   // --- Ref管理 ---
   const streamRef = useRef(null); // カメラとマイクの生ストリーム
   const liveVideoRef = useRef(null); // プレビュー用の<video>要素
@@ -19,6 +23,11 @@ const InterviewRecordVideo = ({ username, onStopInterview }) => {
   const [isRecording, setIsRecording] = useState(false); // 録画中かどうかの状態
   const [error, setError] = useState(null); // エラーメッセージ
   const [elapsedTime, setElapsedTime] = useState(0); // 録画経過時間（秒）
+
+
+    const { user, setIsLoading } = useAuth();
+    const navigate = useNavigate();
+
 
   /**
    * 面接（録画）を開始する非同期関数
@@ -69,7 +78,7 @@ const InterviewRecordVideo = ({ username, onStopInterview }) => {
         setElapsedTime(0); // タイマーをリセット
         // 録画データの断片を結合して単一のBlobオブジェクトを生成
         const videoBlob = new Blob(recordedChunksRef.current, { type: mimeTypeRef.current });
-        const filename = `${username || "Guest"}_${Date.now()}.webm`;
+        const filename = `${user.username || "Guest"}_${Date.now()}.webm`;
         console.log("Generated Filename:", filename);
         // 生成したBlobをサーバーにアップロード
         uploadVideoForAI(videoBlob, filename);
@@ -141,15 +150,148 @@ const InterviewRecordVideo = ({ username, onStopInterview }) => {
    * @param {string} url - 通知先のURL
    * @param {string} filename - 処理対象のファイル名
    */
-  const notifyBackend = async (url, filename) => {
+  const notifyBackend = async (url, filename, question_id, ) => {
+      setIsLoading(true);
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filename }),
+      body: JSON.stringify({ filename, question_id }),
       credentials: "include",
     });
     checkResponse(response);
+    const data = await response.json();
+    const video_id = data.video_id;
+      console.log(video_id)
     console.log("✅ Notify Backend Successful");
+    const analysis = async (video_id) => {
+        const response = await fetch("http://localhost:5000/api/facial/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ video_id }),
+            credentials: "include",
+        })
+        checkResponse(response);
+        const data = await response.json();
+        console.log(data);
+        return data;
+    }
+      const facialResult = await analysis(video_id);
+      const checkStatus = async (operationName, gaze_score, emotion_score, summary, video_id) => {
+          const interval = setInterval(async () => {
+              try {
+                  const response = await fetch(
+                      `http://localhost:5000/api/sttSpeed/transcribe/status/${operationName}`
+                  );
+                  if (!response.ok) {
+                      console.error("Status fetch failed:", response.status);
+                      clearInterval(interval);
+                      return;
+                  }
+                  const data = await response.json();
+                  console.log("Status:", data);
+
+                  if (data.done) {
+                      console.log("Transcript:", data.transcript);
+                      console.log("Chars/sec:", data.chars_per_sec);
+                      console.log("Speed score:", data.speed_score);
+                      console.log("Volume score:", data.volume_score);
+                      console.log(data)// 完了したら停止
+                      //video obj
+                      const duration_sec = data.duration_sec;
+                      // const gaze_score = gaze_score;
+                      // const emotion_score = emotion_score;
+                      // const summary = summary;
+
+                      //speech obj
+                      const speed_score = data.speed_score;
+                      const chars_per_sec = data.chars_per_sec;
+                      const volume_score = data.volume_score;
+                      //transcript
+                      const transcript = data.transcript;
+
+                      //Make raw_data
+                      const raw_data = {
+                          "video" : {
+                              duration_sec: duration_sec,
+                              gaze_score: gaze_score,
+                              emotion_score: emotion_score,
+                              summary: summary,
+                          },
+                          "speech" : {
+                              chars_per_sec: chars_per_sec,
+                              speed_score: speed_score,
+                              volume_score: volume_score,
+                          },
+                          "question" : questionText,
+                          "category" : category,
+                          "transcript" : transcript,
+                          "video_id" : video_id,
+                      }
+                      console.log(raw_data);
+                      clearInterval(interval);
+                      const gemini = async (raw_data) => {
+                          try {
+                              const response = await fetch("http://localhost:5000/api/analyze/feedback", {
+                                  method: "POST",
+                                  headers: {
+                                      "Content-Type": "application/json"
+                                  },
+                                  body: JSON.stringify(raw_data),
+                                  credentials: "include",
+                              });
+
+                              if (!response.ok) {
+                                  throw new Error("Failed to get feedback");
+                              }
+
+                              const data = await response.json();
+                              console.log("gemini : ",data)
+                              navigate('/feedback', { state: { allowed: true, result: data, } });
+                              // return <FeedBackpage to="/feedback" state={ { allowed: true, result: data, } } />
+                          } catch (error) {
+                              console.error(error);
+                              alert("Error: " + error.message);
+                          } finally {
+                              console.log("final")
+                              setIsLoading(false);
+
+                          }
+                      };
+                      gemini(raw_data);
+                  } else {
+                      console.log("Transcription still in progress...");
+                  }
+
+              } catch (error) {
+                  console.error(error);
+                  clearInterval(interval);
+              }
+          }, 3000);
+      };
+      const tran = async (filename, facialResult, video_id) => {
+          const response = await fetch("http://localhost:5000/api/sttSpeed/transcribe", {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                  filename
+              }),
+              credentials: "include",
+          });
+          checkResponse(response);
+          const data = await response.json();
+
+          console.log(data);
+          checkStatus(data.operation_name, facialResult.gaze_score, facialResult.emotion_score, facialResult.summary, video_id)
+
+
+
+
+      }
+      tran(filename, facialResult,video_id);
+
+
   };
 
   /**
@@ -160,14 +302,17 @@ const InterviewRecordVideo = ({ username, onStopInterview }) => {
   const uploadVideoForAI = async (videoBlob, filename) => {
     try {
       // 1. バックエンドに署名付きURLを要求
-      const response = await fetch("http://localhost:5000/api/interview/ai-upload", {
+      let response = await fetch("http://localhost:5000/api/video/ai-upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ filename, contentType: mimeTypeRef.current || "video/webm" }),
         credentials: "include",
       });
-      checkResponse(response);
+      response = checkResponse(response);
       const data = await response.json();
+        if (!data || !data.signed_url) {
+            throw new Error("signed_url is missing in server response");
+        }
       const signedUrl = data.signed_url;
 
       // 2. 取得した署名付きURLを使用してGoogle Cloud Storageにビデオを直接アップロード
@@ -179,7 +324,7 @@ const InterviewRecordVideo = ({ username, onStopInterview }) => {
       if (!gcsResponse.ok) throw new Error("GCSへのアップロードに失敗しました");
 
       // 3. アップロード完了をバックエンドに通知
-      await notifyBackend("http://localhost:5000/api/video/ai-upload-complete", filename);
+      await notifyBackend("http://localhost:5000/api/video/video_save", filename, questionId);
     } catch (error) {
       console.error("Upload Error:", error);
       setError(error.message);
@@ -200,40 +345,42 @@ const InterviewRecordVideo = ({ username, onStopInterview }) => {
 
   // --- レンダリング ---
   return (
-    <>
-      <div className="flex flex-col justify-center items-center pb-3 md:pb-5">
-        <div className="mt-3 mx-auto shawdow shadow-2xl backdrop-blur">
-          {/* ライブプレビュー用のvideo要素 */}
-          <video
-            ref={liveVideoRef}
-            className={`w-full max-w-[95vw] md:w-120 md:max-w-none md:h-70 border border-2 rounded-md object-cover p-2 md:p-3 shadow-sm backdrop-blur -scale-x-100 ${isRecording ? "border-emerald-200" : "border-white/50"}`}
-            autoPlay
-            playsInline
-            muted
-          />
-        </div>
-        {/* 録画タイマー表示 */}
-        <RecordingTimer elapsedTime={elapsedTime} isRecording={isRecording} />
-        <div className="mt-3 md:mt-4 mx-auto p-2">
-          {/* 録画状態に応じて「開始」または「終了」ボタンを表示 */}
-          {isRecording ? (
-            <button
-              onClick={stopInterview}
-              className="mt-3 md:mt-5 px-5 md:px-6 py-2 bg-red-100 text-red-600 border border-2 border-white/50 rounded-full font-semibold text-sm md:text-base shadow-sm hover:scale-105 mx-3 md:mx-5"
-            >
-              終了
-            </button>
-          ) : (
-            <button
-              onClick={startInterview}
-              className="mt-3 md:mt-5 px-5 md:px-6 py-2 text-primary border border-2 border-white/50 rounded-full font-semibold text-sm md:text-base shadow-sm hover:scale-103 hover:shadow-2xl active:scale-98 mx-3 md:mx-5 transition duration-500 ease-in-out"
-            >
-              開始
-            </button>
-          )}
-        </div>
-      </div>
-    </>
+      <>
+          <div className="flex flex-col justify-center items-center pb-3 md:pb-5">
+              <div className="mt-3 mx-auto shawdow shadow-2xl backdrop-blur">
+                  {/* ライブプレビュー用のvideo要素 */}
+                  <video
+                      ref={liveVideoRef}
+                      className={`w-full max-w-[95vw] md:w-120 md:max-w-none md:h-70 border border-2 rounded-md object-cover p-2 md:p-3 shadow-sm backdrop-blur -scale-x-100 ${isRecording ? "border-emerald-200" : "border-white/50"}`}
+                      autoPlay
+                      playsInline
+                      muted
+                  />
+              </div>
+              {/* 録画タイマー表示 */}
+              <RecordingTimer elapsedTime={elapsedTime} isRecording={isRecording}/>
+              <div className="mt-3  mx-auto p-2">
+                  {/* 録画状態に応じて「開始」または「終了」ボタンを表示 */}
+                  {isRecording ? (
+                      <button
+                          onClick={stopInterview}
+                          className=" px-5 md:px-6 py-2 bg-red-100 text-hu border border-2 border-white/50 rounded-full font-semibold text-sm md:text-base shadow-sm hover:scale-105 mx-3 md:mx-5 cursor-pointer"
+                      >
+                          終了
+                      </button>
+                  ) : (
+                      <button
+                          onClick={startInterview}
+                          className="mt-3 md:mt-5 px-5 md:px-6 py-2 text-primary border border-2 border-white/50 rounded-full font-semibold text-sm md:text-base shadow-sm hover:scale-103 hover:shadow-2xl active:scale-98 mx-3 md:mx-5 transition duration-500 ease-in-out cursor-pointer"
+                      >
+                          開始
+                      </button>
+                  )}
+              </div>
+          </div>
+
+
+      </>
   );
 };
 

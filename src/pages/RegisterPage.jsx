@@ -1,7 +1,7 @@
 // 必要なライブラリやコンポーネント、画像をインポートする
-import { useState } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
-import { useNavigate } from "react-router-dom";
+import {Navigate, useNavigate} from "react-router-dom";
 import background from "../assets/imgs/background.png";
 import logo_head from "../assets/imgs/logo-head.png";
 import logo_text from "../assets/imgs/logo-text.png";
@@ -34,6 +34,11 @@ function RegisterPage() {
     const { register } = useAuth();
     // ページ遷移を管理するuseNavigateフック
     const navigate = useNavigate();
+    const { user } = useAuth();
+
+    if (user) {
+        return <Navigate to="/select" replace />;
+    }
 
     /**
      * フォームが送信されたときに実行される非同期関数

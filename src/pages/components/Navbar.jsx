@@ -20,6 +20,7 @@ const Navbar = () => {
   // --- Hooks ---
   // 現在のURLパス情報を取得
   const location = useLocation();
+  const catchFeedbackPage = location.pathname === "/feedback";
   // ページ遷移を管理するuseNavigateフック
   const navigate = useNavigate();
 
@@ -76,7 +77,7 @@ const Navbar = () => {
         <ul className="relative flex flex-row md:flex-col h-16 md:h-auto w-85 md:w-fit space-x-5 md:space-x-0 md:space-y-6 md:pt-1 md:pb-5 border border-gray-400 rounded-full shadow-lg shadow-gray-500/50 justify-center items-center">
           {/* アクティブな項目を示すインジケーター */}
           <div
-            className="absolute w-11 h-11 bg-white border border-gray-400 rounded-full transition-all duration-500 shadow-lg"
+            className={`absolute w-11 h-11 bg-white border border-gray-400 rounded-full transition-all duration-500 shadow-lg ${catchFeedbackPage? 'opacity-0' : 'opacity-100'}`}
             style={{
               top: isMobile ? "50%" : `${desktopTop}px`,
               left: isMobile ? `${mobileLeft}px` : "50%",

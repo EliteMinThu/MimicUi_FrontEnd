@@ -1,7 +1,7 @@
 // 必要なライブラリやコンポーネント、画像をインポートする
-import { useState } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
-import {useNavigate, useParams} from "react-router-dom";
+import {Navigate, useNavigate, useParams} from "react-router-dom";
 import background from "../assets/imgs/background.png";
 import logo_head from "../assets/imgs/logo-head.png";
 import logo_text from "../assets/imgs/logo-text.png";
@@ -33,6 +33,13 @@ function ResetPasswordPage() {
 
 
     const navigate = useNavigate();
+
+
+    const { user } = useAuth();
+
+    if (user) {
+        return <Navigate to="/select" replace />;
+    }
 
     const handleSubmit = async (event) => {
         // デフォルトのフォーム送信動作をキャンセル

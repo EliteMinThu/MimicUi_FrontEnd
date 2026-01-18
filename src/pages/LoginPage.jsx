@@ -1,7 +1,7 @@
 // 必要なライブラリやコンポーネント、画像をインポートする
-import { useState } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
-import { useNavigate, Link } from "react-router-dom";
+import {useNavigate, Link, Navigate} from "react-router-dom";
 import background from "../assets/imgs/background.png";
 import logo_head from "../assets/imgs/logo-head.png";
 import logo_text from "../assets/imgs/logo-text.png";
@@ -23,9 +23,13 @@ function LoginPage() {
 
   // --- Hooks ---
   // AuthContextからlogin関数を取得
-  const { login, is_verified } = useAuth();
+  const { login, is_verified, user } = useAuth();
   // ページ遷移を管理するuseNavigateフック
   const navigate = useNavigate();
+
+  if (user) {
+      return <Navigate to="/select" replace />;
+  }
 
   /**
    * フォームが送信されたときに実行される非同期関数
